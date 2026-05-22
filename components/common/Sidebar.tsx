@@ -14,56 +14,20 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside
-      style={{
-        width: 250,
-        minHeight: "100vh",
-        backgroundColor: "#ffffff",
-        borderRight: "1px solid #F0F0F0",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        padding: "24px 16px",
-        boxSizing: "border-box",
-      }}
-    >
+    <aside className="w-[250px] min-h-screen bg-white border-r border-gray-100 flex flex-col justify-between px-4 py-6 shrink-0">
+
       <div>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 12,
-            paddingLeft: 8,
-            marginBottom: 32,
-          }}
-        >
-          <div
-            style={{
-              width: 42,
-              height: 42,
-              borderRadius: 14,
-              backgroundColor: "#ECEEFF",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-            }}
-          >
-            <PenLine size={20} color="#6366F1" strokeWidth={2.2} />
+
+        <div className="flex items-center gap-3 px-2 mb-8">
+          <div className="w-10 h-10 rounded-2xl bg-[#ECEEFF] flex items-center justify-center">
+            <PenLine className="w-5 h-5 text-[#6366F1]" strokeWidth={2.2} />
           </div>
-          <span
-            style={{
-              fontSize: 22,
-              fontWeight: 700,
-              color: "#111827",
-              letterSpacing: "-0.3px",
-            }}
-          >
+          <h1 className="text-[22px] font-bold text-[#111827] tracking-tight">
             OmniNotes
-          </span>
+          </h1>
         </div>
 
-        <nav style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+        <nav className="flex flex-col gap-1">
           {navItems.map(({ href, label, icon: Icon }) => {
             const isActive = pathname === href;
 
@@ -71,25 +35,18 @@ export default function Sidebar() {
               <Link
                 key={href}
                 href={href}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 12,
-                  padding: "12px 16px",
-                  borderRadius: 16,
-                  textDecoration: "none",
-                  fontSize: 15,
-                  fontWeight: isActive ? 600 : 500,
-                  color: isActive ? "#5B5FEF" : "#374151",
-                  backgroundColor: isActive ? "#EEEFFF" : "transparent",
-                  border: isActive ? "1.5px solid #C7C9F9" : "1.5px solid transparent",
-                  transition: "all 0.15s ease",
-                }}
+                className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-150 text-[15px] font-medium
+                  ${
+                    isActive
+                      ? "bg-[#F0F1FF] text-[#5B5FEF] font-semibold ring-1 ring-[#C7C9F9]"
+                      : "text-[#374151] hover:bg-[#F5F6FF]"
+                  }
+                `}
               >
                 <Icon
-                  size={18}
-                  color={isActive ? "#5B5FEF" : "#6B7280"}
-                  strokeWidth={2}
+                  className={`w-[18px] h-[18px] shrink-0 ${
+                    isActive ? "text-[#5B5FEF]" : "text-[#6B7280]"
+                  }`}
                 />
                 <span>{label}</span>
               </Link>
@@ -98,66 +55,21 @@ export default function Sidebar() {
         </nav>
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-        <div
-          style={{
-            backgroundColor: "#F3F4F6",
-            borderRadius: 16,
-            padding: "10px 14px",
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-          }}
-        >
-          <div
-            style={{
-              width: 34,
-              height: 34,
-              borderRadius: "50%",
-              backgroundColor: "#C7C9F9",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "#5B5FEF",
-              fontWeight: 700,
-              fontSize: 13,
-              flexShrink: 0,
-            }}
-          >
+      <div className="space-y-4">
+
+        <div className="bg-[#F3F4F6] rounded-2xl px-3 py-3 flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full bg-[#C7C9F9] flex items-center justify-center text-[#5B5FEF] font-bold text-sm shrink-0">
             H
           </div>
-          <span
-            style={{
-              fontSize: 13,
-              fontWeight: 500,
-              color: "#111827",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-            }}
-          >
+          <span className="text-[13px] font-medium text-[#111827] truncate">
             hoperochelleandales
           </span>
         </div>
 
-        <button
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-            padding: "4px 12px",
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-            color: "#EF4444",
-            fontSize: 15,
-            fontWeight: 500,
-          }}
-        >
+        <button className="flex items-center gap-2 px-3 py-1 text-[#EF4444] hover:text-red-600 transition-colors font-medium text-[15px]">
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="18"
-            height="18"
+            className="w-[18px] h-[18px]"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
