@@ -24,3 +24,10 @@ export interface DeletedItem {
   deletedAt: string;
   originalData: Note | Subject;
 }
+
+export interface Task {
+  id: string;
+  title: string;
+  completed: boolean;
+  createdAt: string;
+}

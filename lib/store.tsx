@@ -6,7 +6,7 @@ import {
   useState,
   ReactNode,
 } from "react";
-import { Subject, Note, DeletedItem } from "@/types";
+import { Subject, Note, DeletedItem, Task } from "@/types";
 
 const SUBJECT_COLORS = [
   "#F59E0B","#6366F1","#10B981","#EF4444",
@@ -17,6 +17,7 @@ interface AppContextType {
   subjects: Subject[];
   notes: Note[];
   deletedItems: DeletedItem[];
+  tasks: Task[];
   createSubject: (name: string) => Subject;
   deleteSubject: (id: string) => void;
   createNote: (title: string, subjectId: string) => Note;
@@ -24,6 +25,9 @@ interface AppContextType {
   deleteNote: (id: string) => void;
   restoreItem: (id: string) => void;
   permanentlyDelete: (id: string) => void;
+  createTask: (title: string) => void;
+  toggleTask: (id: string) => void;
+  deleteTask: (id: string) => void;
   searchQuery: string;
   setSearchQuery: (q: string) => void;
   filteredSubjects: Subject[];
@@ -35,6 +39,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [subjects, setSubjects]         = useState<Subject[]>([]);
   const [notes, setNotes]               = useState<Note[]>([]);
   const [deletedItems, setDeletedItems] = useState<DeletedItem[]>([]);
+  const [tasks, setTasks]               = useState<Task[]>([]);
   const [searchQuery, setSearchQuery]   = useState("");
 
   const createSubject = (name: string): Subject => {
@@ -92,12 +97,32 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setDeletedItems(prev => prev.filter(d => d.id !== id));
   };
 
+  const createTask = (title: string) => {
+    const t: Task = { id: crypto.randomUUID(), title, completed: false, createdAt: new Date().toISOString() };
+    setTasks(prev => [t, ...prev]);
+  };
+
+  const toggleTask = (id: string) => {
+    setTasks(prev => prev.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
+  };
+
+  const deleteTask = (id: string) => {
+    setTasks(prev => prev.filter(t => t.id !== id));
+  };
+
   const filteredSubjects = subjects.filter(s =>
     s.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
-    <AppContext.Provider value={{ subjects, notes, deletedItems, createSubject, deleteSubject, createNote, updateNote, deleteNote, restoreItem, permanentlyDelete, searchQuery, setSearchQuery, filteredSubjects }}>
+    <AppContext.Provider value={{
+      subjects, notes, deletedItems, tasks,
+      createSubject, deleteSubject,
+      createNote, updateNote, deleteNote,
+      restoreItem, permanentlyDelete,
+      createTask, toggleTask, deleteTask,
+      searchQuery, setSearchQuery, filteredSubjects
+    }}>
       {children}
     </AppContext.Provider>
   );
