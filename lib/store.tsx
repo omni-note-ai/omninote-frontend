@@ -13,24 +13,6 @@ const SUBJECT_COLORS = [
   "#8B5CF6","#EC4899","#14B8A6","#F97316",
 ];
 
-const MOCK_SUBJECTS: Subject[] = [
-  { id: "s1", name: "Mathematics", color: "#6366F1", noteCount: 2, createdAt: "2026-05-01T08:00:00Z" },
-  { id: "s2", name: "Physics",     color: "#F59E0B", noteCount: 1, createdAt: "2026-05-02T09:00:00Z" },
-  { id: "s3", name: "History",     color: "#10B981", noteCount: 1, createdAt: "2026-05-03T10:00:00Z" },
-];
-
-const MOCK_NOTES: Note[] = [
-  { id: "n1", title: "Calculus Basics",       content: "Derivatives and integrals...", subjectId: "s1", subjectName: "Mathematics", createdAt: "2026-05-10T08:00:00Z", updatedAt: "2026-05-10T08:00:00Z" },
-  { id: "n2", title: "Algebra Review",        content: "Linear equations...",           subjectId: "s1", subjectName: "Mathematics", createdAt: "2026-05-11T08:00:00Z", updatedAt: "2026-05-11T08:00:00Z" },
-  { id: "n3", title: "Newton's Laws",         content: "Force = mass × acceleration",  subjectId: "s2", subjectName: "Physics",     createdAt: "2026-05-12T08:00:00Z", updatedAt: "2026-05-12T08:00:00Z" },
-  { id: "n4", title: "World War II Timeline", content: "1939 – 1945...",                subjectId: "s3", subjectName: "History",     createdAt: "2026-05-13T08:00:00Z", updatedAt: "2026-05-13T08:00:00Z" },
-];
-
-const MOCK_DELETED: DeletedItem[] = [
-  { id: "d1", title: "Old Chemistry Notes", type: "note",    subjectName: "Chemistry", deletedAt: "2026-05-20T10:00:00Z", originalData: {} as Note },
-  { id: "d2", title: "Biology",             type: "subject", deletedAt: "2026-05-19T10:00:00Z", originalData: {} as Subject },
-];
-
 interface AppContextType {
   subjects: Subject[];
   notes: Note[];
@@ -50,9 +32,9 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | null>(null);
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [subjects, setSubjects]         = useState<Subject[]>(MOCK_SUBJECTS);
-  const [notes, setNotes]               = useState<Note[]>(MOCK_NOTES);
-  const [deletedItems, setDeletedItems] = useState<DeletedItem[]>(MOCK_DELETED);
+  const [subjects, setSubjects]         = useState<Subject[]>([]);
+  const [notes, setNotes]               = useState<Note[]>([]);
+  const [deletedItems, setDeletedItems] = useState<DeletedItem[]>([]);
   const [searchQuery, setSearchQuery]   = useState("");
 
   const createSubject = (name: string): Subject => {
