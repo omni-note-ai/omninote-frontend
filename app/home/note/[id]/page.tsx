@@ -673,8 +673,8 @@ export default function NotePage() {
               onClick={() => setTab("text")}
               className={
                 tab === "text"
-                  ? "flex items-center gap-1.5 px-4 py-2 text-xs font-extrabold rounded-full border border-gray-250/50 dark:border-gray-700 bg-gray-50 dark:bg-gray-850 text-gray-950 dark:text-white transition cursor-pointer"
-                  : "flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-full border border-transparent text-gray-450 hover:bg-gray-50/50 dark:hover:bg-gray-850/40 transition cursor-pointer"
+                  ? "flex items-center gap-1.5 px-4 py-2 text-xs font-extrabold rounded-full border border-gray-250/50 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-950 dark:text-white transition cursor-pointer"
+                  : "flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-full border border-transparent text-gray-450 hover:bg-gray-50/50 dark:hover:bg-gray-800/40 transition cursor-pointer"
               }
             >
               <PenLine className="w-3.5 h-3.5 text-gray-400" />
@@ -684,8 +684,8 @@ export default function NotePage() {
               onClick={() => setTab("captures")}
               className={
                 tab === "captures"
-                  ? "flex items-center gap-1.5 px-4 py-2 text-xs font-extrabold rounded-full border border-gray-250/50 dark:border-gray-700 bg-gray-50 dark:bg-gray-850 text-gray-950 dark:text-white transition cursor-pointer"
-                  : "flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-full border border-transparent text-gray-450 hover:bg-gray-50/50 dark:hover:bg-gray-850/40 transition cursor-pointer"
+                  ? "flex items-center gap-1.5 px-4 py-2 text-xs font-extrabold rounded-full border border-gray-250/50 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-950 dark:text-white transition cursor-pointer"
+                  : "flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-full border border-transparent text-gray-450 hover:bg-gray-50/50 dark:hover:bg-gray-800/40 transition cursor-pointer"
               }
             >
               <Camera className="w-3.5 h-3.5 text-gray-400" />
