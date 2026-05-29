@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE_URL = process.env.BACKEND_API || process.env.BACKEND_API_LOCAL;
+const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API || "http://localhost:5000/api";
 
 // Create instance
 export const api = axios.create({
