@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Trash2, RotateCcw, FolderOpen, FileText } from "lucide-react";
 import { useApp } from "@/lib/store";
 import Sidebar from "@/components/common/Sidebar";
+import MobileNavbar from "@/components/common/MobileNavbar";
 import { trashAPI, subjectAPI, noteAPI } from "@/lib/api";
 import { useToast } from "@/components/common/ToastProvider";
 import ConfirmModal from "@/components/common/ConfirmModal";
@@ -118,12 +119,12 @@ export default function RecentlyDeletedPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50/50 dark:bg-gray-950/20">
+    <div className="flex flex-col md:flex-row min-h-screen bg-gray-50/50 dark:bg-gray-950/20">
       <Sidebar />
-      <main className="flex-1 flex flex-col min-w-0">
+      <main className="flex-1 flex flex-col min-w-0 pb-16 md:pb-0">
         
         {/* Header toolbar */}
-        <div className="flex items-center justify-between px-8 py-5 border-b border-gray-150/30 dark:border-gray-850 bg-white dark:bg-gray-900/60 backdrop-blur-md sticky top-0 z-30 transition">
+        <div className="flex items-center justify-between px-4 sm:px-8 py-5 border-b border-gray-150/30 dark:border-gray-850 bg-white dark:bg-gray-900/60 backdrop-blur-md sticky top-0 z-30 transition">
           <div className="flex items-center gap-3">
             <Trash2 className="w-5.5 h-5.5 text-gray-400 dark:text-gray-500" />
             <div>
@@ -143,7 +144,7 @@ export default function RecentlyDeletedPage() {
         </div>
 
         {/* Content body canvas */}
-        <div className="flex-1 px-8 md:px-12 py-8 max-w-4xl w-full mx-auto animate-in fade-in duration-300">
+        <div className="flex-1 px-4 sm:px-8 md:px-12 py-8 max-w-4xl w-full mx-auto animate-in fade-in duration-300">
           {loading ? (
             <div className="flex flex-col items-center justify-center h-64 text-center">
               <p className="text-gray-400 text-xs italic animate-pulse">Fetching trash items...</p>
@@ -207,6 +208,7 @@ export default function RecentlyDeletedPage() {
         </div>
       </main>
 
+      <MobileNavbar />
       <ConfirmModal
         isOpen={showConfirmEmpty}
         title="Permanently Empty Trash?"

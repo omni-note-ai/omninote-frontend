@@ -66,7 +66,7 @@ export default function TasksPage() {
     <div className="flex flex-col min-h-screen bg-gray-50/50 dark:bg-gray-950/20">
       
       {/* Visual Header */}
-      <div className="px-8 md:px-12 py-6 border-b border-gray-150/30 dark:border-gray-850 bg-white dark:bg-gray-900/60 backdrop-blur-md sticky top-0 z-30 transition">
+      <div className="px-4 sm:px-8 md:px-12 py-6 border-b border-gray-150/30 dark:border-gray-855 bg-white dark:bg-gray-900/60 backdrop-blur-md sticky top-0 z-30 transition">
         <h1 className="text-xl md:text-2xl font-extrabold text-gray-900 dark:text-white tracking-tight leading-none flex items-center gap-2.5">
           <CheckSquare className="w-5.5 h-5.5 text-indigo-500" />
           My Tasks
@@ -76,7 +76,7 @@ export default function TasksPage() {
         </p>
       </div>
 
-      <div className="flex-1 px-8 md:px-12 py-8 flex flex-col gap-6 max-w-4xl w-full mx-auto animate-in fade-in duration-300">
+      <div className="flex-1 px-4 sm:px-8 md:px-12 py-8 flex flex-col gap-6 max-w-4xl w-full mx-auto animate-in fade-in duration-300">
         
         {/* Modern input block */}
         <div className="flex items-center gap-3.5 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-[24px] px-5 py-3 shadow-sm hover:shadow-md transition duration-250">
@@ -194,7 +194,7 @@ function TaskRow({
       
       <button
         onClick={onDelete}
-        className="opacity-0 group-hover:opacity-100 transition p-1.5 rounded-xl hover:bg-red-500/10 text-gray-400 hover:text-red-500 duration-200 cursor-pointer shrink-0"
+        className="sm:opacity-0 sm:group-hover:opacity-100 opacity-100 transition p-1.5 rounded-xl hover:bg-red-500/10 text-gray-400 hover:text-red-500 duration-200 cursor-pointer shrink-0"
         title="Delete task"
       >
         <Trash2 className="w-3.5 h-3.5" />

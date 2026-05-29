@@ -60,7 +60,7 @@ export default function SubjectCards({ subjects }: { subjects: Subject[] }) {
             {/* Hover Delete Button */}
             <button
               onClick={(e) => handleDeleteClick(e, subject.id)}
-              className="absolute top-5 right-5 opacity-0 group-hover:opacity-100 transition-all p-1.5 rounded-xl hover:bg-red-500/10 text-gray-405 hover:text-red-500 duration-200 cursor-pointer"
+              className="absolute top-5 right-5 sm:opacity-0 sm:group-hover:opacity-100 opacity-100 transition-all p-1.5 rounded-xl hover:bg-red-500/10 text-gray-405 hover:text-red-500 duration-200 cursor-pointer"
               title="Delete folder"
             >
               <Trash2 className="w-4 h-4" />

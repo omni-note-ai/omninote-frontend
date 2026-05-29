@@ -85,7 +85,7 @@ export default function NoteCard({ note, viewMode = "grid" }: { note: Note; view
               <Calendar className="w-3.5 h-3.5 text-gray-350" />
               {formatDate(note.createdAt)}
             </span>
-            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="flex items-center gap-1 sm:opacity-0 sm:group-hover:opacity-100 opacity-100 transition-opacity">
               <button
                 onClick={handleStar}
                 className={`p-2 rounded-xl transition ${
@@ -132,14 +132,14 @@ export default function NoteCard({ note, viewMode = "grid" }: { note: Note; view
               <button
                 onClick={handleStar}
                 className={`p-1 rounded-lg transition duration-200 ${
-                  isStarred ? "text-yellow-400 opacity-100" : "opacity-0 group-hover:opacity-100 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-850"
+                  isStarred ? "text-yellow-400 opacity-100" : "sm:opacity-0 sm:group-hover:opacity-100 opacity-100 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-850"
                 }`}
               >
                 <Star className="w-3.5 h-3.5" fill={isStarred ? "currentColor" : "none"} />
               </button>
               <button
                 onClick={handleDeleteClick}
-                className="opacity-0 group-hover:opacity-100 transition p-1 rounded-lg hover:bg-red-500/10 text-gray-400 hover:text-red-500 duration-200 cursor-pointer"
+                className="sm:opacity-0 sm:group-hover:opacity-100 opacity-100 transition p-1 rounded-lg hover:bg-red-500/10 text-gray-400 hover:text-red-500 duration-200 cursor-pointer"
               >
                 <Trash2 className="w-3.5 h-3.5" />
               </button>

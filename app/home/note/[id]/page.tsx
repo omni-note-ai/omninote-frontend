@@ -568,7 +568,7 @@ export default function NotePage() {
     <div className="flex flex-col h-full bg-white dark:bg-gray-950 transition-colors">
       
       {/* Premium Editor Header Section */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-8 py-4 border-b border-gray-150/30 dark:border-gray-850 bg-white dark:bg-gray-900/60 backdrop-blur-md sticky top-0 z-30 transition">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-4 sm:px-8 py-4 border-b border-gray-150/30 dark:border-gray-850 bg-white dark:bg-gray-900/60 backdrop-blur-md sticky top-0 z-30 transition">
         
         {/* Navigation & Emoji/Title */}
         <div className="flex flex-col min-w-0 flex-1 gap-1">
@@ -621,7 +621,7 @@ export default function NotePage() {
           </div>
 
           {tab === "text" && (
-            <div className="flex items-center gap-3 pl-12 text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider select-none">
+            <div className="flex items-center flex-wrap gap-3 pl-1 sm:pl-12 text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider select-none">
               <span className="flex items-center gap-1 shrink-0">
                 <BarChart3 className="w-3.5 h-3.5 text-gray-400" />
                 {wordCount} Words
@@ -870,11 +870,11 @@ export default function NotePage() {
           )}
 
           {/* 2. Workspace View Tabs Panels */}
-          <div className="flex-1 flex overflow-hidden p-6 gap-6 relative min-h-0">
+          <div className="flex-1 flex overflow-hidden p-3 sm:p-6 gap-6 relative min-h-0">
             
             {/* Text Editor Tab canvas */}
             {tab === "text" ? (
-              <div className="flex-1 flex gap-6 overflow-hidden min-h-0">
+              <div className="flex-1 flex flex-col md:flex-row gap-6 overflow-hidden min-h-0">
                 
                 {/* 2.1 Raw Text Area Input Editor */}
                 {(editorMode === "edit" || editorMode === "split") && (

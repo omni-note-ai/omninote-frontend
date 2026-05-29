@@ -36,7 +36,7 @@ export default function Sidebar() {
 
   return (
     <aside
-      className={`relative min-h-screen bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 flex flex-col justify-between p-4 pb-6 shrink-0 transition-all duration-300 ${
+      className={`hidden md:flex relative min-h-screen bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 flex flex-col justify-between p-4 pb-6 shrink-0 transition-all duration-300 ${
         isCollapsed ? "w-[76px]" : "w-[260px]"
       }`}
     >

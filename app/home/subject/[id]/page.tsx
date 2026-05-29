@@ -64,7 +64,7 @@ export default function SubjectPage() {
       <div className="flex flex-col border-b border-gray-150/30 dark:border-gray-850 bg-white dark:bg-gray-900/60 backdrop-blur-md sticky top-0 z-30 transition">
         
         {/* Top Breadcrumb Navigation Row */}
-        <div className="flex items-center gap-1.5 px-8 pt-4 text-[10px] text-gray-400 font-bold uppercase tracking-wider">
+        <div className="flex items-center gap-1.5 px-4 sm:px-8 pt-4 text-[10px] text-gray-400 font-bold uppercase tracking-wider">
           <Link href="/home" className="hover:text-gray-650 dark:hover:text-gray-250 transition-colors">
             Home
           </Link>
@@ -76,7 +76,7 @@ export default function SubjectPage() {
         </div>
 
         {/* Header Action Row */}
-        <div className="flex items-center justify-between px-8 pb-4.5 pt-3">
+        <div className="flex items-center justify-between px-4 sm:px-8 pb-4.5 pt-3">
           <div className="flex items-center gap-3">
             <button
               onClick={() => router.back()}
@@ -99,7 +99,7 @@ export default function SubjectPage() {
         </div>
       </div>
 
-      <div className="flex-1 px-8 py-6 max-w-7xl w-full mx-auto animate-in fade-in duration-300 flex flex-col gap-6">
+      <div className="flex-1 px-4 sm:px-8 py-6 max-w-7xl w-full mx-auto animate-in fade-in duration-300 flex flex-col gap-6">
         
         {/* New Note Form Panel Drawer */}
         {showNewNote && (
@@ -192,7 +192,7 @@ export default function SubjectPage() {
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-4.5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4.5">
             {processedNotes.map((note) => (
               <NoteCard key={note.id} note={note} viewMode="grid" />
             ))}
