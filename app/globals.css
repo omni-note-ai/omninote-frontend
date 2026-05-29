@@ -1,14 +1,184 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 @import "tailwindcss";
 @variant dark (&:where(.dark, .dark *));
 
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
 * {
   box-sizing: border-box;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  font-family: "Inter", system-ui, sans-serif;
+  background-color: #f9fafb;
+  color: #111827;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.dark body {
+  background-color: #030712;
+  color: #f3f4f6;
+}
+
+/* Custom Scrollbar Styles */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.25);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.45);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(75, 85, 99, 0.3);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(75, 85, 99, 0.5);
+}
+
+/* Glassmorphism utility */
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+.dark .glass {
+  background: rgba(17, 24, 39, 0.7);
+  backdrop-filter: blur(12px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* AI Skeleton Animation */
+@keyframes skeleton-pulse {
+  0%, 100% {
+    opacity: 0.6;
+    background-color: rgba(229, 231, 235, 0.5);
+  }
+  50% {
+    opacity: 1;
+    background-color: rgba(209, 213, 219, 0.8);
+  }
+}
+
+.dark .skeleton-pulse {
+  animation: dark-skeleton-pulse 1.8s infinite ease-in-out;
+}
+
+@keyframes dark-skeleton-pulse {
+  0%, 100% {
+    opacity: 0.6;
+    background-color: rgba(31, 41, 55, 0.4);
+  }
+  50% {
+    opacity: 1;
+    background-color: rgba(55, 65, 81, 0.7);
+  }
+}
+
+.skeleton-item {
+  animation: skeleton-pulse 1.8s infinite ease-in-out;
+  border-radius: 8px;
+}
+
+/* Code Editor Custom Theme */
+.code-block {
+  font-family: 'JetBrains Mono', monospace;
+  background-color: #1e1e2e;
+  color: #cdd6f4;
+  padding: 1rem;
+  border-radius: 12px;
+  overflow-x: auto;
+  border: 1px solid #313244;
+}
+
+/* AI Thinking Dots Animation */
+.dot-flashing {
+  position: relative;
+  width: 6px;
+  height: 6px;
+  border-radius: 5px;
+  background-color: currentColor;
+  animation: dot-flashing 1s infinite linear alternate;
+  animation-delay: .5s;
+}
+
+.dot-flashing::before, .dot-flashing::after {
+  content: '';
+  display: inline-block;
+  position: absolute;
+  top: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 5px;
+  background-color: currentColor;
+  animation: dot-flashing 1s infinite linear alternate;
+}
+
+.dot-flashing::before {
+  left: -12px;
+  animation-delay: 0s;
+}
+
+.dot-flashing::after {
+  left: 12px;
+  animation-delay: 1s;
+}
+
+@keyframes dot-flashing {
+  0% {
+    background-color: currentColor;
+  }
+  50%, 100% {
+    background-color: rgba(156, 163, 175, 0.2);
+  }
+}
+
+/* Premium Typography for Headers */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Outfit', sans-serif;
+  letter-spacing: -0.02em;
+}
+
+/* Split-screen markdown editor spacing and scroll */
+.preview-pane ul, .preview-pane ol {
+  padding-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.preview-pane ul {
+  list-style-type: disc;
+}
+
+.preview-pane ol {
+  list-style-type: decimal;
+}
+
+.preview-pane blockquote {
+  border-left: 4px solid #e5e7eb;
+  padding-left: 1rem;
+  color: #4b5563;
+  font-style: italic;
+  margin: 1rem 0;
+}
+
+.dark .preview-pane blockquote {
+  border-left-color: #374151;
+  color: #9ca3af;
 }

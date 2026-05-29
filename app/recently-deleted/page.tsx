@@ -1,11 +1,113 @@
 "use client";
 
-import { Trash2, RotateCcw, X, FolderOpen, FileText } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Trash2, RotateCcw, FolderOpen, FileText } from "lucide-react";
 import { useApp } from "@/lib/store";
 import Sidebar from "@/components/common/Sidebar";
+import { trashAPI, subjectAPI, noteAPI } from "@/lib/api";
+import { useToast } from "@/components/common/ToastProvider";
+import ConfirmModal from "@/components/common/ConfirmModal";
+
+interface NormalizedTrashItem {
+  id: string;
+  title: string;
+  type: "note" | "subject";
+  subjectName?: string;
+  deletedAt: string;
+}
 
 export default function RecentlyDeletedPage() {
-  const { deletedItems, restoreItem, permanentlyDelete } = useApp();
+  const { isLoggedIn, isAuthLoading } = useApp();
+  const router = useRouter();
+  const { toast } = useToast();
+  const [mounted, setMounted] = useState(false);
+  const [trashItems, setTrashItems] = useState<NormalizedTrashItem[]>([]);
+  const [loading, setLoading] = useState(false);
+  
+  // Custom confirm dialog state
+  const [showConfirmEmpty, setShowConfirmEmpty] = useState(false);
+
+  const fetchTrash = async () => {
+    try {
+      setLoading(true);
+      const res = await trashAPI.getTrash();
+      if (res.success && res.data) {
+        const normalized: NormalizedTrashItem[] = [];
+        if (res.data.subjects) {
+          res.data.subjects.forEach((s: any) => {
+            normalized.push({
+              id: s.id,
+              title: s.name,
+              type: "subject",
+              deletedAt: s.updatedAt || new Date().toISOString(),
+            });
+          });
+        }
+        if (res.data.notes) {
+          res.data.notes.forEach((n: any) => {
+            normalized.push({
+              id: n.id,
+              title: n.title || "Untitled Note",
+              type: "note",
+              subjectName: n.subjectName || "Folder",
+              deletedAt: n.updatedAt || new Date().toISOString(),
+            });
+          });
+        }
+        setTrashItems(normalized);
+      }
+    } catch (e) {
+      console.error("Failed to load trash list:", e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    setMounted(true);
+    if (!isAuthLoading && !isLoggedIn) {
+      router.push("/login");
+    } else if (isLoggedIn) {
+      fetchTrash();
+    }
+  }, [isLoggedIn, isAuthLoading, router]);
+
+  if (!mounted || isAuthLoading || !isLoggedIn) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-950 text-sm text-gray-400 font-semibold animate-pulse">
+        Loading trash details...
+      </div>
+    );
+  }
+
+  const handleRestore = async (id: string, type: "note" | "subject", title: string) => {
+    try {
+      if (type === "subject") {
+        await subjectAPI.restore(id);
+      } else {
+        await noteAPI.restore(id);
+      }
+      toast(`Successfully restored "${title}"`, "success");
+      await fetchTrash();
+    } catch (e) {
+      console.error("Restoration failed:", e);
+      toast("Failed to restore item", "error");
+    }
+  };
+
+  const handleEmptyTrash = async () => {
+    try {
+      await trashAPI.emptyTrash();
+      setTrashItems([]);
+      toast("Trash emptied successfully", "info");
+    } catch (e) {
+      console.error("Failed to empty trash:", e);
+      toast("Failed to empty trash", "error");
+    } finally {
+      setShowConfirmEmpty(false);
+    }
+  };
 
   const formatDate = (iso: string) => {
     const d = new Date(iso);
@@ -16,75 +118,87 @@ export default function RecentlyDeletedPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50 dark:bg-gray-950">
+    <div className="flex min-h-screen bg-gray-50/50 dark:bg-gray-950/20">
       <Sidebar />
-      <main className="flex-1 flex flex-col">
-        <div className="flex items-center justify-between px-8 py-5 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900">
+      <main className="flex-1 flex flex-col min-w-0">
+        
+        {/* Header toolbar */}
+        <div className="flex items-center justify-between px-8 py-5 border-b border-gray-150/30 dark:border-gray-850 bg-white dark:bg-gray-900/60 backdrop-blur-md sticky top-0 z-30 transition">
           <div className="flex items-center gap-3">
-            <Trash2 className="w-5 h-5 text-gray-400 dark:text-gray-500" />
-            <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Recently Deleted</h1>
+            <Trash2 className="w-5.5 h-5.5 text-gray-400 dark:text-gray-500" />
+            <div>
+              <h1 className="text-lg md:text-xl font-extrabold text-gray-850 dark:text-white leading-tight">Recently Deleted</h1>
+              <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-0.5">Recover or empty study documents</p>
+            </div>
           </div>
-          {deletedItems.length > 0 && (
+          
+          {trashItems.length > 0 && (
             <button
-              onClick={() => {
-                if (confirm("Permanently delete all items?"))
-                  deletedItems.forEach((item) => permanentlyDelete(item.id));
-              }}
-              className="text-sm text-red-500 hover:text-red-600 font-medium transition-colors"
+              onClick={() => setShowConfirmEmpty(true)}
+              className="text-xs.5 font-extrabold text-red-500 hover:text-red-650 hover:bg-red-500/5 px-4 py-2 rounded-xl transition cursor-pointer"
             >
               Empty Trash
             </button>
           )}
         </div>
 
-        <div className="flex-1 px-8 py-6">
-          {deletedItems.length === 0 ? (
+        {/* Content body canvas */}
+        <div className="flex-1 px-8 md:px-12 py-8 max-w-4xl w-full mx-auto animate-in fade-in duration-300">
+          {loading ? (
             <div className="flex flex-col items-center justify-center h-64 text-center">
-              <Trash2 className="w-14 h-14 text-gray-200 dark:text-gray-700 mb-3" />
-              <p className="text-gray-400 dark:text-gray-500 text-sm">Nothing in the trash.</p>
+              <p className="text-gray-400 text-xs italic animate-pulse">Fetching trash items...</p>
+            </div>
+          ) : trashItems.length === 0 ? (
+            <div className="border border-dashed border-gray-200 dark:border-gray-850 rounded-3xl p-16 text-center bg-white dark:bg-gray-900 flex flex-col items-center justify-center min-h-[260px]">
+              <Trash2 className="w-12 h-12 text-gray-200 dark:text-gray-750 mb-3" strokeWidth={1.5} />
+              <p className="text-gray-550 dark:text-gray-400 text-xs.5 leading-relaxed">
+                Trash is empty. Documents you delete are kept here for 30 days.
+              </p>
             </div>
           ) : (
             <>
-              <p className="text-xs text-gray-400 dark:text-gray-500 mb-4">
+              <p className="text-[10px] font-bold text-gray-400 dark:text-gray-505 uppercase tracking-wider mb-4 px-2">
                 Items are kept for 30 days before being permanently removed.
               </p>
-              <div className="space-y-2">
-                {deletedItems.map((item) => (
+              
+              <div className="space-y-2.5">
+                {trashItems.map((item) => (
                   <div
                     key={item.id}
-                    className="flex items-center justify-between bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl px-5 py-3.5 shadow-sm hover:shadow-md transition-shadow"
+                    className="flex items-center justify-between bg-white dark:bg-gray-900 border border-gray-150/40 dark:border-gray-800 rounded-2.5xl px-5 py-4 shadow-sm hover:shadow-md transition duration-200"
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                        {item.type === "subject"
-                          ? <FolderOpen className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                          : <FileText className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                        }
+                    <div className="flex items-center gap-3.5 min-w-0 flex-1">
+                      <div className="w-9 h-9 rounded-xl bg-gray-50 dark:bg-gray-950 flex items-center justify-center shrink-0">
+                        {item.type === "subject" ? (
+                          <FolderOpen className="w-4.5 h-4.5 text-gray-400" />
+                        ) : (
+                          <FileText className="w-4.5 h-4.5 text-gray-400" />
+                        )}
                       </div>
-                      <div>
-                        <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">{item.title}</p>
-                        <p className="text-xs text-gray-400 dark:text-gray-500">
-                          {item.type === "note" && item.subjectName ? `From "${item.subjectName}" · ` : ""}
-                          Deleted {formatDate(item.deletedAt)}
+                      
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs.5 font-bold text-gray-800 dark:text-gray-150 truncate leading-snug">
+                          {item.title}
+                        </p>
+                        <p className="text-[10px] text-gray-400 dark:text-gray-550 font-semibold mt-1 flex items-center gap-1.5 flex-wrap">
+                          {item.type === "note" && item.subjectName ? (
+                            <>
+                              <span>From "{item.subjectName}"</span>
+                              <span className="text-gray-200 dark:text-gray-800">·</span>
+                            </>
+                          ) : null}
+                          <span>Deleted {formatDate(item.deletedAt)}</span>
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => restoreItem(item.id)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg transition-colors"
-                      >
-                        <RotateCcw className="w-3 h-3" />
-                        Restore
-                      </button>
-                      <button
-                        onClick={() => { if (confirm("Permanently delete?")) permanentlyDelete(item.id); }}
-                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-950 border border-red-200 dark:border-red-900 rounded-lg transition-colors"
-                      >
-                        <X className="w-3 h-3" />
-                        Delete
-                      </button>
-                    </div>
+
+                    <button
+                      onClick={() => handleRestore(item.id, item.type, item.title)}
+                      className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl transition cursor-pointer shrink-0 shadow-sm"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" />
+                      Restore
+                    </button>
                   </div>
                 ))}
               </div>
@@ -92,6 +206,15 @@ export default function RecentlyDeletedPage() {
           )}
         </div>
       </main>
+
+      <ConfirmModal
+        isOpen={showConfirmEmpty}
+        title="Permanently Empty Trash?"
+        message="Are you sure you want to permanently delete all items in the trash? This action cannot be undone and these study files will be lost forever."
+        confirmLabel="Empty Trash"
+        onConfirm={handleEmptyTrash}
+        onCancel={() => setShowConfirmEmpty(false)}
+      />
     </div>
   );
 }

@@ -4,13 +4,22 @@ import {
   createContext,
   useContext,
   useState,
+  useEffect,
+  useCallback,
   ReactNode,
 } from "react";
 import { Subject, Note, DeletedItem, Task } from "@/types";
+import {
+  authAPI,
+  subjectAPI,
+  noteAPI,
+  taskAPI,
+  trashAPI,
+} from "@/lib/api";
 
 const SUBJECT_COLORS = [
-  "#F59E0B","#6366F1","#10B981","#EF4444",
-  "#8B5CF6","#EC4899","#14B8A6","#F97316",
+  "#6366F1", "#10B981", "#EF4444", "#F59E0B",
+  "#8B5CF6", "#EC4899", "#14B8A6", "#F97316",
 ];
 
 interface AppContextType {
@@ -18,19 +27,27 @@ interface AppContextType {
   notes: Note[];
   deletedItems: DeletedItem[];
   tasks: Task[];
-  createSubject: (name: string) => Subject;
-  deleteSubject: (id: string) => void;
-  createNote: (title: string, subjectId: string) => Note;
-  updateNote: (id: string, content: string) => void;
-  deleteNote: (id: string) => void;
-  restoreItem: (id: string) => void;
-  permanentlyDelete: (id: string) => void;
-  createTask: (title: string) => void;
-  toggleTask: (id: string) => void;
-  deleteTask: (id: string) => void;
+  createSubject: (name: string) => Promise<Subject>;
+  deleteSubject: (id: string) => Promise<void>;
+  createNote: (title: string, subjectId: string) => Promise<Note>;
+  updateNote: (id: string, content: string, title?: string) => Promise<void>;
+  deleteNote: (id: string) => Promise<void>;
+  restoreItem: (id: string) => Promise<void>;
+  permanentlyDelete: (id: string) => Promise<void>;
+  createTask: (title: string) => Promise<void>;
+  toggleTask: (id: string) => Promise<void>;
+  deleteTask: (id: string) => Promise<void>;
   searchQuery: string;
   setSearchQuery: (q: string) => void;
   filteredSubjects: Subject[];
+  user: { id: string; name: string; email: string } | null;
+  isLoggedIn: boolean;
+  isAuthLoading: boolean;
+  isDataLoading: boolean;
+  login: (email: string, password?: string) => Promise<void>;
+  signup: (name: string, email: string, password?: string) => Promise<void>;
+  logout: () => Promise<void>;
+  fetchNotes: (subjectId: string) => Promise<void>;
 }
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -41,74 +58,201 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [deletedItems, setDeletedItems] = useState<DeletedItem[]>([]);
   const [tasks, setTasks]               = useState<Task[]>([]);
   const [searchQuery, setSearchQuery]   = useState("");
+  const [user, setUser]                 = useState<{ id: string; name: string; email: string } | null>(null);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
+  const [isDataLoading, setIsDataLoading] = useState(false);
 
-  const createSubject = (name: string): Subject => {
+  // 1. Recover session on mount
+  useEffect(() => {
+    const recoverSession = async () => {
+      const token = localStorage.getItem("omninote_token");
+      if (token) {
+        try {
+          const res = await authAPI.getProfile();
+          if (res.success && res.data) {
+            setUser(res.data);
+          }
+        } catch (_) {
+          localStorage.removeItem("omninote_token");
+        }
+      }
+      setIsAuthLoading(false);
+    };
+    recoverSession();
+  }, []);
+
+  // 2. Fetch data once authenticated
+  useEffect(() => {
+    if (user) {
+      const fetchInitialData = async () => {
+        try {
+          setIsDataLoading(true);
+          const subjectsRes = await subjectAPI.list();
+          if (subjectsRes.success && subjectsRes.data) {
+            setSubjects(subjectsRes.data);
+          }
+          const tasksRes = await taskAPI.list();
+          if (tasksRes.success && tasksRes.data) {
+            setTasks(tasksRes.data);
+          }
+        } catch (e) {
+          console.error("Error loading user records:", e);
+        } finally {
+          setIsDataLoading(false);
+        }
+      };
+      fetchInitialData();
+    } else {
+      // Clear data on logout
+      setSubjects([]);
+      setNotes([]);
+      setTasks([]);
+      setIsDataLoading(false);
+    }
+  }, [user]);
+
+  // Auth Operations
+  const login = useCallback(async (email: string, password?: string): Promise<void> => {
+    try {
+      const res = await authAPI.login({ email, password: password || "" });
+      if (res.success && res.data) {
+        localStorage.setItem("omninote_token", res.data.token);
+        setUser(res.data.user);
+      } else {
+        throw new Error(res.message || "Login failed");
+      }
+    } catch (e: any) {
+      console.error(e);
+      const errMsg = e.message || "Login failed";
+      throw new Error(errMsg);
+    }
+  }, []);
+
+  const signup = useCallback(async (name: string, email: string, password?: string): Promise<void> => {
+    try {
+      const res = await authAPI.register({ name, email, password: password || "" });
+      if (!res.success) {
+        throw new Error(res.message || "Registration failed");
+      }
+      // Do NOT auto-login. Let user sign in manually on the login page.
+    } catch (e: any) {
+      console.error(e);
+      const errMsg = e.errors?.[0]?.message || e.message || "Registration failed";
+      throw new Error(errMsg);
+    }
+  }, []);
+
+  const logout = useCallback(async () => {
+    try {
+      await authAPI.logout();
+    } catch (e) {
+      console.error("Backend logout error:", e);
+    } finally {
+      localStorage.removeItem("omninote_token");
+      setUser(null);
+    }
+  }, []);
+
+  // Asynchronous Folder (Subject) Operations
+  const createSubject = useCallback(async (name: string): Promise<Subject> => {
     const color = SUBJECT_COLORS[subjects.length % SUBJECT_COLORS.length];
-    const s: Subject = { id: crypto.randomUUID(), name, color, noteCount: 0, createdAt: new Date().toISOString() };
-    setSubjects(prev => [...prev, s]);
-    return s;
-  };
+    const res = await subjectAPI.create({ name, color });
+    if (res.success && res.data) {
+      const newSubject: Subject = res.data;
+      setSubjects(prev => [...prev, newSubject]);
+      return newSubject;
+    }
+    throw new Error("Failed to create subject folder");
+  }, [subjects.length]);
 
-  const deleteSubject = (id: string) => {
-    const subject = subjects.find(s => s.id === id);
-    if (!subject) return;
-    setDeletedItems(prev => [{ id: crypto.randomUUID(), title: subject.name, type: "subject", deletedAt: new Date().toISOString(), originalData: subject }, ...prev]);
-    setSubjects(prev => prev.filter(s => s.id !== id));
-    setNotes(prev => prev.filter(n => n.subjectId !== id));
-  };
+  const deleteSubject = useCallback(async (id: string) => {
+    const res = await subjectAPI.softDelete(id);
+    if (res.success) {
+      setSubjects(prev => prev.filter(s => s.id !== id));
+      setNotes(prev => prev.filter(n => n.subjectId !== id));
+    }
+  }, []);
 
-  const createNote = (title: string, subjectId: string): Note => {
-    const subject = subjects.find(s => s.id === subjectId);
-    const n: Note = { id: crypto.randomUUID(), title, content: "", subjectId, subjectName: subject?.name ?? "", createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
-    setNotes(prev => [...prev, n]);
-    setSubjects(prev => prev.map(s => s.id === subjectId ? { ...s, noteCount: s.noteCount + 1 } : s));
-    return n;
-  };
+  // Asynchronous Note Operations
+  const fetchNotes = useCallback(async (subjectId: string) => {
+    try {
+      const res = await noteAPI.list(subjectId);
+      if (res.success && res.data) {
+        setNotes(prev => {
+          const filtered = prev.filter(n => n.subjectId !== subjectId);
+          return [...filtered, ...res.data];
+        });
+      }
+    } catch (e) {
+      console.error("fetchNotes error:", e);
+    }
+  }, []);
 
-  const updateNote = (id: string, content: string) => {
-    setNotes(prev => prev.map(n => n.id === id ? { ...n, content, updatedAt: new Date().toISOString() } : n));
-  };
+  const createNote = useCallback(async (title: string, subjectId: string): Promise<Note> => {
+    const res = await noteAPI.create({ title, subjectId });
+    if (res.success && res.data) {
+      const newNote: Note = res.data;
+      setNotes(prev => [...prev, newNote]);
+      setSubjects(prev =>
+        prev.map(s => s.id === subjectId ? { ...s, noteCount: s.noteCount + 1 } : s)
+      );
+      return newNote;
+    }
+    throw new Error("Failed to create note record");
+  }, []);
 
-  const deleteNote = (id: string) => {
+  const updateNote = useCallback(async (id: string, content: string, title?: string) => {
+    const res = await noteAPI.update(id, { content, title });
+    if (res.success && res.data) {
+      setNotes(prev =>
+        prev.map(n => n.id === id ? { ...n, content, title: title || n.title, updatedAt: new Date().toISOString() } : n)
+      );
+    }
+  }, []);
+
+  const deleteNote = useCallback(async (id: string) => {
     const note = notes.find(n => n.id === id);
     if (!note) return;
-    setDeletedItems(prev => [{ id: crypto.randomUUID(), title: note.title, type: "note", subjectName: note.subjectName, deletedAt: new Date().toISOString(), originalData: note }, ...prev]);
-    setNotes(prev => prev.filter(n => n.id !== id));
-    setSubjects(prev => prev.map(s => s.id === note.subjectId ? { ...s, noteCount: Math.max(0, s.noteCount - 1) } : s));
-  };
-
-  const restoreItem = (id: string) => {
-    const item = deletedItems.find(d => d.id === id);
-    if (!item) return;
-    if (item.type === "note") {
-      const note = item.originalData as Note;
-      if (note.id) {
-        setNotes(prev => [...prev, note]);
-        setSubjects(prev => prev.map(s => s.id === note.subjectId ? { ...s, noteCount: s.noteCount + 1 } : s));
-      }
-    } else {
-      const subject = item.originalData as Subject;
-      if (subject.id) setSubjects(prev => [...prev, subject]);
+    const res = await noteAPI.softDelete(id);
+    if (res.success) {
+      setNotes(prev => prev.filter(n => n.id !== id));
+      setSubjects(prev =>
+        prev.map(s => s.id === note.subjectId ? { ...s, noteCount: Math.max(0, s.noteCount - 1) } : s)
+      );
     }
-    setDeletedItems(prev => prev.filter(d => d.id !== id));
-  };
+  }, [notes]);
 
-  const permanentlyDelete = (id: string) => {
-    setDeletedItems(prev => prev.filter(d => d.id !== id));
-  };
+  const restoreItem = useCallback(async (id: string) => {
+    // Determine restoration type from backend/trash context (handled in UI trash, let's fetch trash dynamically on trash page)
+  }, []);
 
-  const createTask = (title: string) => {
-    const t: Task = { id: crypto.randomUUID(), title, completed: false, createdAt: new Date().toISOString() };
-    setTasks(prev => [t, ...prev]);
-  };
+  const permanentlyDelete = useCallback(async (id: string) => {
+    // Purges from trash are handled by backend /trash/empty globally or by API
+  }, []);
 
-  const toggleTask = (id: string) => {
-    setTasks(prev => prev.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
-  };
+  // Asynchronous Task Operations
+  const createTask = useCallback(async (title: string) => {
+    const res = await taskAPI.create({ text: title });
+    if (res.success && res.data) {
+      setTasks(prev => [res.data, ...prev]);
+    }
+  }, []);
 
-  const deleteTask = (id: string) => {
-    setTasks(prev => prev.filter(t => t.id !== id));
-  };
+  const toggleTask = useCallback(async (id: string) => {
+    const res = await taskAPI.toggle(id);
+    if (res.success && res.data) {
+      setTasks(prev =>
+        prev.map(t => t.id === id ? { ...t, completed: res.data.completed } : t)
+      );
+    }
+  }, []);
+
+  const deleteTask = useCallback(async (id: string) => {
+    const res = await taskAPI.delete(id);
+    if (res.success) {
+      setTasks(prev => prev.filter(t => t.id !== id));
+    }
+  }, []);
 
   const filteredSubjects = subjects.filter(s =>
     s.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -121,7 +265,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       createNote, updateNote, deleteNote,
       restoreItem, permanentlyDelete,
       createTask, toggleTask, deleteTask,
-      searchQuery, setSearchQuery, filteredSubjects
+      searchQuery, setSearchQuery, filteredSubjects,
+      user, isLoggedIn: !!user, isAuthLoading, isDataLoading, login, signup, logout, fetchNotes
     }}>
       {children}
     </AppContext.Provider>

@@ -27,7 +27,8 @@ export interface DeletedItem {
 
 export interface Task {
   id: string;
-  title: string;
+  title?: string;
+  text: string;
   completed: boolean;
   createdAt: string;
 }

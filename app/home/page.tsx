@@ -12,40 +12,54 @@ export default function DashboardPage() {
   const [showNewFolder, setShowNewFolder] = useState(false);
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50 dark:bg-gray-950">
-      <div className="flex items-center justify-between px-12 py-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">My Subjects</h1>
-        <div className="flex items-center gap-4">
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+    <div className="flex flex-col min-h-screen bg-white dark:bg-gray-950 transition-colors duration-200">
+      
+      {/* Main clean layout container */}
+      <div className="flex-1 px-8 md:px-12 py-10 max-w-5xl w-full mx-auto animate-in fade-in duration-300 flex flex-col gap-6">
+        
+        {/* Title and subtitle */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-extrabold text-gray-950 dark:text-white tracking-tight">
+              Subjects
+            </h1>
+            <p className="text-sm.5 text-gray-400 dark:text-gray-550 font-semibold mt-1">
+              Organize your thoughts and materials.
+            </p>
+          </div>
+          <ThemeToggle />
+        </div>
+
+        {/* Search controls row */}
+        <div className="flex items-center gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search notes..."
-              className="pl-11 pr-4 py-2.5 text-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-700 focus:border-gray-400 dark:focus:border-gray-500 transition w-64 text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500"
+              placeholder="Search..."
+              className="w-full pl-11 pr-4 py-3 text-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-805 rounded-2xl outline-none focus:ring-1.5 focus:ring-gray-950 dark:focus:ring-gray-200 focus:border-transparent transition text-gray-800 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 shadow-inner"
             />
           </div>
+
           <button
             onClick={() => setShowNewFolder(true)}
-            className="flex items-center gap-2 px-5 py-2.5 bg-gray-900 dark:bg-gray-100 hover:bg-gray-700 dark:hover:bg-gray-300 text-white dark:text-gray-900 text-sm font-medium rounded-lg transition-colors"
+            className="flex items-center gap-1.5 px-6 py-3 bg-gray-950 dark:bg-white text-white dark:text-gray-950 text-sm font-bold rounded-2xl transition shadow-md active:scale-97 hover:opacity-90 cursor-pointer shrink-0"
           >
             <Plus className="w-4 h-4" />
-            New Folder
+            New
           </button>
-          <ThemeToggle />
         </div>
-      </div>
 
-      <div className="flex-1 flex flex-col px-12 pb-12">
+        {/* Inline new folder creator drawer */}
         {showNewFolder && <NewFolderForm onClose={() => setShowNewFolder(false)} />}
 
+        {/* Folder items list grid */}
         {filteredSubjects.length === 0 && !showNewFolder ? (
-          <div className="flex-1 flex flex-col items-center justify-center text-center">
-            <div className="w-20 h-20 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl flex items-center justify-center mb-5 bg-white dark:bg-gray-900">
-              <Folder className="w-10 h-10 text-gray-300 dark:text-gray-600" strokeWidth={1.5} />
-            </div>
-            <p className="text-gray-500 dark:text-gray-400 text-sm max-w-sm">
+          <div className="border border-dashed border-gray-200 dark:border-gray-800 rounded-3xl p-16 text-center bg-gray-50/20 dark:bg-gray-900/10 flex flex-col items-center justify-center min-h-[220px]">
+            <Folder className="w-12 h-12 text-gray-300 dark:text-gray-700 mb-3" strokeWidth={1.5} />
+            <p className="text-gray-500 dark:text-gray-400 text-xs.5 leading-relaxed">
               {searchQuery ? "No subjects match your search." : "No subjects yet. Create one to start taking notes!"}
             </p>
           </div>
@@ -53,6 +67,7 @@ export default function DashboardPage() {
           <SubjectCards subjects={filteredSubjects} />
         )}
       </div>
+
     </div>
   );
 }

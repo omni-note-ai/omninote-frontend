@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { AppProvider } from "@/lib/store";
+import { ToastProvider } from "@/components/common/ToastProvider";
+import CommandPalette from "@/components/common/CommandPalette";
 
 export const metadata: Metadata = {
   title: "OmniNotes",
@@ -16,7 +18,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         }} />
       </head>
       <body className="bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 antialiased">
-        <AppProvider>{children}</AppProvider>
+        <AppProvider>
+          <ToastProvider>
+            {children}
+            <CommandPalette />
+          </ToastProvider>
+        </AppProvider>
       </body>
     </html>
   );
