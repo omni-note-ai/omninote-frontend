@@ -36,9 +36,8 @@ export default function Sidebar() {
 
   return (
     <aside
-      className={`hidden md:flex relative min-h-screen bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 flex flex-col justify-between p-4 pb-6 shrink-0 transition-all duration-300 ${
-        isCollapsed ? "w-[76px]" : "w-[260px]"
-      }`}
+      className={`hidden md:flex relative min-h-screen bg-white dark:bg-gray-900 border-r border-gray-100 dark:border-gray-800 flex flex-col justify-between p-4 pb-6 shrink-0 transition-all duration-300 ${isCollapsed ? "w-[76px]" : "w-[260px]"
+        }`}
     >
       {/* Collapse Toggle Arrow */}
       <button
@@ -72,28 +71,25 @@ export default function Sidebar() {
               <Link
                 key={href}
                 href={href}
-                className={`group flex items-center rounded-2xl text-sm transition-all border ${
-                  isActive
+                className={`group flex items-center rounded-2xl text-sm transition-all border ${isActive
                     ? "px-4 py-3 font-bold text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-800 border-gray-250/50 dark:border-gray-700 shadow-sm"
                     : "px-4 py-3 font-semibold text-gray-500 dark:text-gray-450 hover:bg-gray-50/50 dark:hover:bg-gray-800/40 border-transparent hover:text-gray-950 dark:hover:text-white"
-                } ${isCollapsed ? "justify-center" : "justify-between"}`}
+                  } ${isCollapsed ? "justify-center" : "justify-between"}`}
                 title={isCollapsed ? label : undefined}
               >
                 <div className="flex items-center gap-3">
                   <Icon
-                    className={`w-4 h-4 shrink-0 transition-transform group-hover:scale-110 ${
-                      isActive ? "text-gray-950 dark:text-white" : "text-gray-400"
-                    }`}
+                    className={`w-4 h-4 shrink-0 transition-transform group-hover:scale-110 ${isActive ? "text-gray-950 dark:text-white" : "text-gray-400"
+                      }`}
                   />
                   {!isCollapsed && <span>{label}</span>}
                 </div>
 
                 {hasBadge && (
-                  <span className={`flex items-center justify-center text-[10px] font-bold rounded-full min-w-[20px] h-[20px] px-1 shadow-sm leading-none shrink-0 ${
-                    isActive 
-                      ? "bg-gray-950 text-white dark:bg-white dark:text-gray-950" 
+                  <span className={`flex items-center justify-center text-[10px] font-bold rounded-full min-w-[20px] h-[20px] px-1 shadow-sm leading-none shrink-0 ${isActive
+                      ? "bg-gray-950 text-white dark:bg-white dark:text-gray-950"
                       : "bg-red-500 text-white"
-                  }`}>
+                    }`}>
                     {pendingTasks}
                   </span>
                 )}
@@ -105,14 +101,13 @@ export default function Sidebar() {
 
       {/* Account Profile Bottom Panel */}
       <div className="flex flex-col gap-4">
-        <div className={`bg-gray-50 dark:bg-gray-950 border border-gray-100/50 dark:border-gray-800/40 rounded-2xl p-2.5 flex items-center gap-3 overflow-hidden ${
-          isCollapsed ? "justify-center" : ""
-        }`}>
+        <div className={`bg-gray-50 dark:bg-gray-950 border border-gray-100/50 dark:border-gray-800/40 rounded-2xl p-2.5 flex items-center gap-3 overflow-hidden ${isCollapsed ? "justify-center" : ""
+          }`}>
           <div className="w-8 h-8 rounded-full bg-gray-900 text-white dark:bg-white dark:text-gray-950 flex items-center justify-center font-bold text-sm shrink-0 shadow-sm">
             {initials}
           </div>
           {!isCollapsed && (
-            <span className="text-xs.5 font-bold text-gray-800 dark:text-gray-250 truncate">
+            <span className="text-xs.5 font-bold text-gray-800 dark:text-slate-200 truncate">
               {displayName}
             </span>
           )}
@@ -121,9 +116,8 @@ export default function Sidebar() {
         <div className={`flex items-center justify-between ${isCollapsed ? "flex-col gap-3" : "px-1"}`}>
           <button
             onClick={handleLogout}
-            className={`flex items-center gap-2.5 px-3 py-2 text-sm font-semibold text-red-500 hover:text-red-650 transition-all rounded-xl hover:bg-red-500/5 ${
-              isCollapsed ? "justify-center" : ""
-            }`}
+            className={`flex items-center gap-2.5 px-3 py-2 text-sm font-semibold text-red-500 hover:text-red-650 transition-all rounded-xl hover:bg-red-500/5 ${isCollapsed ? "justify-center" : ""
+              }`}
             title={isCollapsed ? "Log Out" : undefined}
           >
             <LogOut className="w-4 h-4 shrink-0" />
