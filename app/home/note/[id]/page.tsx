@@ -47,6 +47,9 @@ export default function NotePage() {
   const [isPinned, setIsPinned] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
+  // Lightbox preview state
+  const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
+
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Load emojis and favorites on mount
@@ -942,16 +945,32 @@ export default function NotePage() {
                           key={img.id}
                           className="group relative border border-gray-150/40 dark:border-gray-800 bg-white dark:bg-gray-900 rounded-3xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
                         >
-                          <div className="aspect-[4/3] bg-gray-50 dark:bg-gray-950 relative overflow-hidden">
+                          <div
+                            onClick={() => setPreviewImageUrl(resolvedUrl)}
+                            className="aspect-[4/3] bg-gray-50 dark:bg-gray-950 relative overflow-hidden cursor-zoom-in group/img"
+                            title="Click to view closer"
+                          >
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                               src={resolvedUrl}
                               alt="Attachment Capture"
                               className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-300"
                             />
+                            <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/20 flex items-center justify-center transition-colors duration-200">
+                              <Eye className="w-5 h-5 text-white opacity-0 group-hover/img:opacity-100 scale-90 group-hover/img:scale-100 transition-all duration-200" />
+                            </div>
                           </div>
                           
-                          <div className="p-3 flex items-center justify-end border-t border-gray-100 dark:border-gray-855 bg-gray-50/20 dark:bg-gray-950/20 shrink-0 select-none">
+                          <div className="p-3 flex items-center justify-between border-t border-gray-100 dark:border-gray-855 bg-gray-50/20 dark:bg-gray-950/20 shrink-0 select-none">
+                            <button
+                              onClick={() => handleRunOCR(img.id)}
+                              className="flex items-center gap-1 px-2.5 py-1 text-[10px] font-extrabold text-indigo-600 hover:text-indigo-750 dark:text-indigo-400 dark:hover:text-indigo-350 hover:bg-indigo-500/5 dark:hover:bg-indigo-500/10 rounded-xl transition cursor-pointer"
+                              title="Extract text using Gemini AI"
+                            >
+                              <Sparkles className="w-3 h-3 text-indigo-500 animate-pulse" />
+                              Scan
+                            </button>
+
                             <button
                               onClick={() => handleImageDelete(img.id)}
                               className="p-1.5 text-gray-450 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition cursor-pointer"
@@ -1179,6 +1198,53 @@ export default function NotePage() {
                 </>
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Image Lightbox Preview Modal */}
+      {previewImageUrl && (
+        <div
+          className="fixed inset-0 bg-black/80 dark:bg-black/90 flex flex-col items-center justify-center z-[9999] animate-in fade-in duration-200 p-4 md:p-8 backdrop-blur-sm"
+          onClick={() => setPreviewImageUrl(null)}
+        >
+          {/* Close button top right */}
+          <button
+            onClick={() => setPreviewImageUrl(null)}
+            className="absolute top-6 right-6 p-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition cursor-pointer z-[10000]"
+            title="Close preview"
+          >
+            <X className="w-5 h-5" />
+          </button>
+          
+          {/* Full Image Container */}
+          <div 
+            className="relative max-w-full max-h-[85vh] rounded-2xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 flex items-center justify-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={previewImageUrl}
+              alt="Full Preview Capture"
+              className="max-w-full max-h-[85vh] object-contain rounded-2xl"
+            />
+          </div>
+
+          {/* Action Button Row */}
+          <div 
+            className="mt-4 flex items-center gap-3"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <a
+              href={previewImageUrl}
+              download="capture.png"
+              target="_blank"
+              rel="noreferrer"
+              className="px-5 py-2.5 bg-white/10 hover:bg-white/20 text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5"
+            >
+              <FileDown className="w-4 h-4" />
+              Open in New Tab
+            </a>
           </div>
         </div>
       )}
